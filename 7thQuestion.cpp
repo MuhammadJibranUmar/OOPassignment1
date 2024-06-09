@@ -1,170 +1,261 @@
 #include <iostream>
-#include <string>
-
 using namespace std;
 
-class Account {
-public:
-    Account() : accountNumber(0), title(""), balance(0) {} // Default constructor
+const int MAX_ACCOUNTS = 100;
 
-    Account(int accountNo, string accountTitle, int accountBalance) {
-        accountNumber = accountNo;
-        title = accountTitle;
-        balance = accountBalance;
-    }
+class Account{
+    public:
+        
+        int accountNumber;
+        
+        Account(){
+            accountNumber = 0;
+            accountBalance = 0;
+        }
 
-    void getDetails() {
-        cout << "Account Number: " << accountNumber << endl;
-        cout << "Title: " << title << endl;
-        cout << "Balance: " << balance << endl;
-    }
+        void addAccount(int number, string title, double balance){
+            accountNumber = number;
+            accountTitle = title;
+            accountBalance = balance;
 
-    unsigned int getAccountNumber() const {
-        return accountNumber;
-    }
+            cout << "Account created successfully!!\n";
+        }
 
-    void setTitle(const string& newTitle) {
-        title = newTitle;
-    }
+        void modAccount(string title, double balance){
+            accountTitle = title;
+            accountBalance = balance;
 
-    void setBalance(int newBalance) {
-        balance = newBalance;
-    }
+            cout << "Account Modified successfully!!!\n";
+        }
+        void creditAmount(double amount){
+            accountBalance += amount;
 
-private:
-    unsigned int accountNumber;
-    string title;
-    int balance;
+            cout << "Balance updated successfully!!\n";
+        }
+
+        void debitAmount(double amount){
+            if (amount <= accountBalance)
+            {
+                accountBalance -= amount;
+                cout << "Balance updated successfully!!\n";
+            } else
+            {
+                cout << "Insufficient Balance!!\n";
+            }
+        }
+
+        void dispalyInfo(){
+            cout << "Account Number: " << accountNumber << endl;
+            cout << "Account Title: " << accountTitle << endl;
+            cout << "Account Balance: " << accountBalance << endl;
+            cout << "-------------\n";
+        }
+    private:
+        
+        string accountTitle;
+        double accountBalance;
 };
 
-class BankSystem {
-public:
-    BankSystem() : count(0) {}
-
-    void addAccount(int accountNo, string title, int balance) {
-        if (count < 100) {
-            account[count++] = Account(accountNo, title, balance);
-            cout << "Account added successfully!!\n";
-        } else {
-            cout << "Cannot add more accounts. Limit reached.\n";
+class BankSystem
+{
+    public:
+        BankSystem(){
+            count = 0;
         }
-    }
 
-    void deleteAccount(int accountNo) {
-        bool found = false;
-        for (int i = 0; i < count; i++) {
-            if (account[i].getAccountNumber() == accountNo) {
-                for (int j = i; j < count - 1; j++) {
-                    account[j] = account[j + 1];
+        void accountMenu(){
+            cout << "Account Menu\n";
+            cout << "[1]. Credit Amount\n";
+            cout << "[2]. Debit Amount\n";
+            cout << "[3]. Modify Account\n";
+            cout << "[4]. Display Info\n";
+            cout << "[5]. Logout";
+            cout << "\nEnter choice: ";
+        }
+
+        void addAccount(){
+            int accountNum;
+            cout << "Enter Account Number: ";
+            cin >> accountNum;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (accountNum == accounts[i].accountNumber)
+                {
+                    cout << "Account already exists!!\n";
+                    return;
                 }
-                count--;
-                found = true;
-                cout << "Account deleted Successfully!!\n";
-                break;
             }
-        }
-        if (!found) {
-            cout << "Error!! \nAccount Not Found. \n";
-        }
-    }
+                    string title;
+                    double balance;
 
-    void modifyAccount(int accountNo, string title, int balance) {
-        bool found = false;
-        for (int i = 0; i < count; i++) {
-            if (account[i].getAccountNumber() == accountNo) {
-                account[i].setTitle(title);
-                account[i].setBalance(balance);
-                found = true;
-                cout << "Account Modified Successfully!!\n";
-                break;
+                    cout << "Enter Title: ";
+                    cin.ignore();
+                    getline(cin, title);
+                    cout << "Enter Balance: ";
+                    cin >> balance;
+
+                    accounts[count].addAccount(accountNum, title, balance);
+                    count++;
+            
+        }
+
+        void deleteAccount(int accountNum){
+
+            for (int i = 0; i < count; i++)
+            {
+                if(accountNum == accounts[i].accountNumber){
+                    for (int j = i; j < count - 1; j++)
+                    {
+                        accounts[j] = accounts[j+1];
+                    }
+                    cout << "Account Deleted successfully!!!\n";
+                    count--;
+                    return;
+                }
             }
-        }
-        if (!found) {
-            cout << "Account Not Found!!\n";
-        }
-    }
+            cout << "Account Not Found !!!\n";
+            
 
-    void displayAccounts() {
-        for (int i = 0; i < count; i++) {
-            account[i].getDetails();
         }
-    }
 
-private:
-    Account account[100];
-    int count;
+        void modifyAccount(int accountNum){
+
+            for (int i = 0; i < count; i++)
+            {
+                if (accountNum == accounts[i].accountNumber)
+                {
+                    string title;
+                    double balance;
+
+                    cout << "Enter Title: ";
+                    cin.ignore();
+                    getline(cin, title);
+                    cout << "Enter Balance: ";
+                    cin >> balance;
+
+                    accounts[i].modAccount(title, balance);
+                    return;
+                }
+            }
+            cout << "Account does not exists!!!\n";
+        }
+
+        void loginAccount(){
+            int accountNum;
+            cout << "Enter Account Number: ";
+            cin >> accountNum;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (accountNum == accounts[i].accountNumber)
+                {
+                    cout << "Login Successful!!\n";
+                    char accountOption;
+                    double amount;
+                    do
+                    {
+                        accountMenu();
+                        cin >> accountOption;
+
+                        switch (accountOption)
+                        {
+                        case '1':
+                            cout << "Enter amount to credit: ";
+                            cin >> amount;
+                            accounts[i].creditAmount(amount);
+                            break;
+                        case '2':
+                            cout << "Enter amount to withdraw: ";
+                            cin >> amount;
+                            accounts[i].debitAmount(amount);
+                            break;
+                        case '3':
+                            modifyAccount(accountNum);
+                            break;
+                        case '4':
+                            accounts[i].dispalyInfo();
+                            break;
+                        case '5':
+                            cout << "Logged out!!!\n";
+                            break;
+                        default:
+                            cout << "Invalid Option!! \n";
+                            break;
+                        }
+                    } while (accountOption != '5');
+                    return;
+                }
+                
+            }
+            cout << "Account not found!!!\n";
+            
+        }
+
+        void displayAccounts(){
+            for (int i = 0; i < count; i++)
+            {
+                accounts[i].dispalyInfo();
+            }
+            
+        }
+        
+    private:
+        Account accounts[MAX_ACCOUNTS];
+        int count;
 };
 
-void menu() {
-    cout << "Main Menu\n";
+void bankMenu(){
+    cout << "Menu\n";
     cout << "[1]. Add Account\n";
-    cout << "[2]. Delete Account\n";
-    cout << "[3]. Modify Account\n";
+    cout << "[2]. Modify Account\n";
+    cout << "[3]. Delete Account\n";
     cout << "[4]. Display Accounts\n";
-    cout << "[5]. Exit\n";
-    cout << "Enter your Choice: ";
+    cout << "[5]. Login to certain Account\n";
+    cout << "[6]. Exit\n";
+    cout << "\nEnter choice: ";
 }
 
-void setDetails(BankSystem &bank) {
-    int accountNo;
-    string title;
-    int balance;
-
-    cout << "Enter Account Number: ";
-    cin >> accountNo;
-
-    cout << "Enter Account Title: ";
-    cin.ignore(); // Clear input buffer
-    getline(cin, title);
-
-    cout << "Enter Balance: ";
-    cin >> balance;
-
-    bank.addAccount(accountNo, title, balance);
-}
-
-int main() {
+int main(){
     BankSystem bank;
-    int choice;
-    int modAccountNo;
-    string modTitle;
-    int modBalance;
+    char bankOption;
+    int accountNum;
+    do
+    {
+        bankMenu();
+        
+        cin >> bankOption;
 
-    do {
-        menu();
-        cin >> choice;
+        switch (bankOption)
+        {
+        case '1':
+            bank.addAccount();
+            break;
+        case '2':
+            cout << "Enter Account Number: ";
+            cin >> accountNum;
 
-        switch (choice) {
-            case 1:
-                setDetails(bank);
-                break;
-            case 2:
-                int accountNo;
-                cout << "Enter Account Number to Delete: ";
-                cin >> accountNo;
-                bank.deleteAccount(accountNo);
-                break;
-            case 3:
-                cout << "Enter Account Number to Modify: ";
-                cin >> modAccountNo;
-                cout << "Enter New Title: ";
-                cin.ignore(); // Clear input buffer
-                getline(cin, modTitle);
-                cout << "Enter New Balance: ";
-                cin >> modBalance;
-                bank.modifyAccount(modAccountNo, modTitle, modBalance);
-                break;
-            case 4:
-                bank.displayAccounts();
-                break;
-            case 5:
-                cout << "Exiting...";
-                break;
-            default:
-                cout << "Invalid choice! Please enter a valid option.\n";
-                break;
+            bank.modifyAccount(accountNum);
+            break;
+        case '3':
+            cout << "Enter Account Number: ";
+            cin >> accountNum;
+            bank.deleteAccount(accountNum);
+            break;
+        case '4':
+            bank.displayAccounts();
+            break;
+        case '5':
+            bank.loginAccount();
+            break;
+        case '6':
+            cout << "Exiting!!!\n";
+            break;
+        default:
+            cout << "Invalid option!!!\n";
+            break;
         }
-    } while (choice != 5);
-
+    } while (bankOption != '6');
+    
     return 0;
 }
